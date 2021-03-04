@@ -1,15 +1,15 @@
-def literal(p,q,s,i,o):
+def literal(p,s,q,i,o):
     x = p.pop(0)
     p.append(x)
     s.append(x)
 
-def jump(p,q,s,i,o):
+def jump(p,s,q,i,o):
     temp = []
     for i in range(s.pop()):
         temp.append(p.pop(0))
     p.extend(temp)
 
-def conditional_jump(p,q,s,i,o):
+def conditional_jump(p,s,q,i,o):
     x = s.pop()
     if s.pop() != 0:
         temp = []
@@ -17,61 +17,65 @@ def conditional_jump(p,q,s,i,o):
             temp.append(p.pop(0))
         p.extend(temp)
 
-def dequeue(p,q,s,i,o):
+def dequeue(p,s,q,i,o):
     s.append(q.pop(0))
 
-def enqueue(p,q,s,i,o):
+def enqueue(p,s,q,i,o):
     q.append(s.pop())
 
-def cycle(p,q,s,i,o):
+def cycle(p,s,q,i,o):
     for i in range(s.pop()):
         q.append(q.pop(0))
 
-def size(p,q,s,i,o):
+def size(p,s,q,i,o):
     s.append(len(q))
 
-def get_input(p,q,s,i,o):
+def get_input(p,s,q,i,o):
     s.append(i.pop(0))
 
-def print_output(p,q,s,i,o):
+def print_output(p,s,q,i,o):
     o.append(s.pop())
 
-def pop(p,q,s,i,o):
+def pop(p,s,q,i,o):
     s.pop()
 
-def swap(p,q,s,i,o):
+def duplicate(p,s,q,i,o):
+    x = s.pop()
+    s.append(x)
+    s.append(x)
+
+def swap(p,s,q,i,o):
     x = s.pop()
     y = s.pop()
     s.append(x)
     s.append(y)
 
-def reverse(p,q,s,i,o):
+def rotate_up(p,s,q,i,o):
     x = s.pop()
-    temp = s[-x::]
-    temp.reverse()
-    s[-x::] = temp
+    y = s.pop(-x-1)
+    s.append(y)
 
-def duplicate(p,q,s,i,o):
+def rotate_down(p,s,q,i,o):
     x = s.pop()
-    s.append(x)
-    s.append(x)
+    y = s.pop()
+    s.insert(-x,y)
 
-def add(p,q,s,i,o):
+def add(p,s,q,i,o):
     x = s.pop()
     y = s.pop()
     s.append(y + x)
 
-def subtract(p,q,s,i,o):
+def subtract(p,s,q,i,o):
     x = s.pop()
     y = s.pop()
     s.append(y - x)
 
-def multiply(p,q,s,i,o):
+def multiply(p,s,q,i,o):
     x = s.pop()
     y = s.pop()
     s.append(y * x)
 
-def less(p,q,s,i,o):
+def less(p,s,q,i,o):
     x = s.pop()
     y = s.pop()
     if y < x:
@@ -79,7 +83,7 @@ def less(p,q,s,i,o):
     else:
         s.append(0)
 
-def greater(p,q,s,i,o):
+def greater(p,s,q,i,o):
     x = s.pop()
     y = s.pop()
     if y > x:
@@ -87,7 +91,7 @@ def greater(p,q,s,i,o):
     else:
         s.append(0)
 
-def equal(p,q,s,i,o):
+def equal(p,s,q,i,o):
     x = s.pop()
     y = s.pop()
     if y == x:
@@ -95,7 +99,7 @@ def equal(p,q,s,i,o):
     else:
         s.append(0)
 
-def not_equal(p,q,s,i,o):
+def not_equal(p,s,q,i,o):
     x = s.pop()
     y = s.pop()
     if y != x:
@@ -103,10 +107,10 @@ def not_equal(p,q,s,i,o):
     else:
         s.append(0)
 
-isa = ['stop', literal, jump, conditional_jump, dequeue, enqueue, size, get_input, print_output, pop, swap, reverse, duplicate, add, subtract, multiply, less, greater, equal, not_equal]
-asm = ['stop', 'lit', 'jump', 'cond', 'deq', 'enq', 'size', 'input', 'output', 'pop', 'swap', 'rev', 'dup', 'add', 'sub', 'mul', 'less', 'greater', 'eq', 'neq']
+isa = ['stop', literal, jump, conditional_jump, dequeue, enqueue, cycle, size, get_input, print_output, pop, swap, rotate_up, rotate_down, duplicate, add, subtract, multiply, less, greater, equal, not_equal]
+asm = ['stop', 'lit', 'jump', 'cond', 'deq', 'enq', 'cycle', 'size', 'input', 'output', 'pop', 'swap', 'rotup', 'rotdown', 'dupl', 'add', 'sub', 'mul', 'less', 'greater', 'eq', 'neq']
 
-def run(program = [], queue = [], stack = [], userin = [], userout = []):
+def run(program = [], stack = [], queue = [], userin = [], userout = []):
     count = 0
     while True:
         count += 1
@@ -114,7 +118,16 @@ def run(program = [], queue = [], stack = [], userin = [], userout = []):
         program.append(instruction)
         if instruction >= len(isa) or instruction == 0:
             return count
-        isa[instruction](program,queue,stack,userin,userout)
+        isa[instruction](program,stack,queue,userin,userout)
+
+def step(program = [], stack = [], queue = [], userin = [], userout = []):
+    instruction = program.pop(0)
+    program.append(instruction)
+    if instruction >= len(isa) or instruction == 0:
+        return 0
+    else:
+        isa[instruction](program,stack,queue,userin,userout)
+        return 1
 
 def assemble(code = ""):
     program = []
@@ -132,7 +145,7 @@ def assemble(code = ""):
     return program
         
 if __name__ == '__main__':
-    program = assemble("#hello_world input dup lit 0x1 cond stop output")
+    program = assemble("#hello_world input dupl lit 0x1 cond stop output")
     userin = [1, 2, 3, 420, 69, 0]
     userout = []
     print('input = ', userin)

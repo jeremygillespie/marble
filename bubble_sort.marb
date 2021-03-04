@@ -1,0 +1,44 @@
+#main_loop
+size
+deq
+
+#check_sorted_loop
+swap
+lit 0x1 sub
+dupl
+lit 0x2 rotdown
+lit 0x3 cond #IF_all_checked
+enq
+pop
+stop #ENDIF
+deq
+dupl
+lit 0x2 rotup
+dupl
+lit 0x3 rotdown
+less
+lit 0x5 cond #IF_less
+swap
+enq
+lit 0x25 jump #ENDIF
+enq
+
+#sort_loop
+swap
+lit 0x1 sub
+dupl
+lit 0x2 rotdown
+lit 0x5 cond #IF_all_sorted
+enq
+pop
+lit 0x12 jump #ENDIF
+deq
+dupl
+lit 0x2 rotup
+dupl
+lit 0x3 rotdown
+less
+lit 0x1 cond #IF_not_less
+swap #ENDIF
+enq
+lit 0x23 jump
